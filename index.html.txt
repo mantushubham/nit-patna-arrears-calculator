@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ex-Servicemen Security Guards Arrears Calculator - NIT Patna</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        form { max-width: 600px; margin: 0 auto; }
+        label { display: block; margin-top: 10px; }
+        input { width: 100%; padding: 8px; margin-top: 5px; }
+        button { display: block; width: 100%; padding: 10px; margin-top: 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .violation { color: red; }
+        #total-arrears { font-weight: bold; margin-top: 20px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Ex-Servicemen Security Guards Arrears Calculator</h1>
+    <p>This tool allows you to input your date of joining and consolidated pay received each month. It analyzes violations based on DGR/CLC minimum wages for NIT Patna, calculates underpayments, and generates a PDF for claiming arrears.</p>
+    
+    <form id="inputForm">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" required>
+        
+        <label for="joiningDate">Date of Joining (YYYY-MM-DD):</label>
+        <input type="date" id="joiningDate" required>
+        
+        <button type="button" onclick="generateMonths()">Generate Months & Input Pays</button>
+    </form>
+    
+    <div id="tableContainer" style="display: none;">
+        <table id="payTable">
+            <thead>
+                <tr>
+                    <th>Month (YYYY-MM)</th>
+                    <th>Required Total Wages (as per DGR/CLC)</th>
+                    <th>Consolidated Pay Received</th>
+                    <th>Difference (Underpayment)</th>
+                    <th>Violation</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div id="total-arrears"></div>
+        <button type="button" onclick="generatePDF()">Generate Arrears Claim PDF</button>
+    </div>
+
+    <script>
+        const wageData = [
+            { start: '2013-10', totalWages: 15661.71 },
+            { start: '2014-04', totalWages: 16630.48 },
+            { start: '2014-10', totalWages: 16791.94 },
+            { start: '2015-04', totalWages: 17653.06 },
+            { start: '2015-10', totalWages: 17892.22 },
+            { start: '2016-04', totalWages: 18645.65 },
+            { start: '2016-10', totalWages: 18998.57 },
+            { start: '2017-04', totalWages: 31821.12 },
+            { start: '2017-10', totalWages: 31915.45 },
+            { start: '2018-04', totalWages: 32938.03 },
+            { start: '2018-10', totalWages: 33622.50 },
+            { start: '2019-04', totalWages: 34920.71 },
+            { start: '2019-10', totalWages: 35477.10 },
+            { start: '2020-04', totalWages: 36878.46 },
+            { start: '2020-10', totalWages: 37428.61 },
+            { start: '2021-02', totalWages: 37428.61 },
+            { start: '2021-10', totalWages: 39007.25 },
+            { start: '2022-04', totalWages: 38594.64 },
+            { start: '2022-10', totalWages: 41070.33 },
+            { start: '2023-04', totalWages: 42354.02 },
+            { start: '2023-10', totalWages: 42896.90 },
+            { start: '2024-04', totalWages: 44462.95 },
+            { start: '2024-10', totalWages: 44738.03 },
+            { start: '2025-04', totalWages: 44426.48 },
+            { start: '2025-10', totalWages: 45884.18 }
+        ];
+
+        function getTotalWagesForMonth(yearMonth) {
+            const targetDate = new Date(`${yearMonth}-01`);
+            let applicable = wageData[0].totalWages;
+            for (let i = wageData.length - 1; i >= 0; i--) {
+                const startDate = new Date(`${wageData[i].start}-01`);
+                if (startDate <= targetDate) {
+                    applicable = wageData[i].totalWages;
+                    break;
+                }
+            }
+            return applicable;
+        }
+
+        function generateMonths() {
+            const joiningDate = new Date(document.getElementById('joiningDate').value);
+            const currentDate = new Date('2025-10-04'); // Current date as per query
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            let totalArrears = 0;
+            let current = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
+            
+            while (current <= currentDate) {
+                const yearMonth = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+                const requiredTotalWages = getTotalWagesForMonth(yearMonth);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${yearMonth}</td>
+                    <td>${requiredTotalWages.toFixed(2)}</td>
+                    <td><input type="number" class="paid-input" value="0" onchange="calculateDifference(this)"></td>
+                    <td class="difference">0.00</td>
+                    <td class="violation"></td>
+                `;
+                tableBody.appendChild(row);
+                
+                current.setMonth(current.getMonth() + 1);
+            }
+            
+            document.getElementById('tableContainer').style.display = 'block';
+            calculateAllDifferences();
+        }
+
+        function calculateDifference(input) {
+            const row = input.parentElement.parentElement;
+            const required = parseFloat(row.children[1].textContent);
+            const paid = parseFloat(input.value) || 0;
+            const diff = required - paid;
+            row.children[3].textContent = diff.toFixed(2);
+            row.children[4].textContent = diff > 0 ? 'Violation: Underpaid' : 'No Violation';
+            row.children[4].classList.toggle('violation', diff > 0);
+            calculateTotalArrears();
+        }
+
+        function calculateAllDifferences() {
+            const inputs = document.querySelectorAll('.paid-input');
+            inputs.forEach(input => calculateDifference(input));
+        }
+
+        function calculateTotalArrears() {
+            const diffs = document.querySelectorAll('.difference');
+            let total = 0;
+            diffs.forEach(diff => {
+                total += parseFloat(diff.textContent) || 0;
+            });
+            document.getElementById('total-arrears').textContent = `Total Arrears: ₹${total.toFixed(2)}`;
+            return total;
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const name = document.getElementById('name').value;
+            const joiningDate = document.getElementById('joiningDate').value;
+            const totalArrears = calculateTotalArrears();
+
+            doc.setFontSize(12);
+            doc.text('Arrears Claim Letter', 105, 10, { align: 'center' });
+            doc.text(`To: The Director, NIT Patna`, 20, 30);
+            doc.text(`From: ${name}`, 20, 40);
+            doc.text(`Date of Joining: ${joiningDate}`, 20, 50);
+            doc.text(`Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`, 20, 60);
+            doc.text(`Dear Sir/Madam,`, 20, 70);
+            doc.text(`I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`, 20, 80);
+            doc.text(`I hereby claim the following arrears based on underpayments and violations:`, 20, 90);
+
+            let y = 110;
+            doc.text('Month', 20, y);
+            doc.text('Required Total Wages', 50, y);
+            doc.text('Paid', 90, y);
+            doc.text('Difference', 130, y);
+            doc.text('Violation', 160, y);
+            y += 10;
+
+            const rows = document.querySelectorAll('#payTable tbody tr');
+            rows.forEach(row => {
+                const cells = row.children;
+                doc.text(cells[0].textContent, 20, y);
+                doc.text(cells[1].textContent, 50, y);
+                doc.text(cells[2].querySelector('input').value || '0', 90, y);
+                doc.text(cells[3].textContent, 130, y);
+                doc.text(cells[4].textContent, 160, y);
+                y += 10;
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+            });
+
+            doc.text(`Total Arrears: ₹${totalArrears.toFixed(2)}`, 20, y + 10);
+            doc.text(`Please release the arrears at the earliest.`, 20, y + 30);
+            doc.text(`Yours sincerely,`, 20, y + 40);
+            doc.text(name, 20, y + 50);
+
+            doc.save('arrears-claim.pdf');
+        }
+    </script>
+</body>
+</html>
