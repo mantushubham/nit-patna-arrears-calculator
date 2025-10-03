@@ -28,6 +28,21 @@
         <label for="name">Your Name:</label>
         <input type="text" id="name" required>
         
+        <label for="aadhaar">Aadhaar Number:</label>
+        <input type="text" id="aadhaar" required pattern="\d{12}" placeholder="Enter 12-digit Aadhaar number" title="Aadhaar must be 12 digits">
+        
+        <label for="bankAccount">Indian Bank Salary Account No.:</label>
+        <input type="text" id="bankAccount" required pattern="\d{9,18}" placeholder="Enter 9-18 digit account number" title="Account number must be 9-18 digits">
+        
+        <label for="dob">Date of Birth (YYYY-MM-DD):</label>
+        <input type="date" id="dob" required>
+        
+        <label for="mobile">Mobile Number:</label>
+        <input type="tel" id="mobile" required pattern="\d{10}" placeholder="Enter 10-digit mobile number" title="Mobile must be 10 digits">
+        
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" required>
+        
         <label for="joiningDate">Date of Joining (YYYY-MM-DD):</label>
         <input type="date" id="joiningDate" required>
         
@@ -54,30 +69,30 @@
     <script>
         const wageData = [
             { start: '2013-10', totalWages: 15661.71 },
-            { start: '2014-04', totalWages: 16630.48 },
-            { start: '2014-10', totalWages: 16791.94 },
-            { start: '2015-04', totalWages: 17653.06 },
-            { start: '2015-10', totalWages: 17892.22 },
-            { start: '2016-04', totalWages: 18645.65 },
-            { start: '2016-10', totalWages: 18998.57 },
-            { start: '2017-04', totalWages: 31821.12 },
-            { start: '2017-10', totalWages: 31915.45 },
-            { start: '2018-04', totalWages: 32938.03 },
-            { start: '2018-10', totalWages: 33622.50 },
-            { start: '2019-04', totalWages: 34920.71 },
-            { start: '2019-10', totalWages: 35477.10 },
-            { start: '2020-04', totalWages: 36878.46 },
-            { start: '2020-10', totalWages: 37428.61 },
-            { start: '2021-02', totalWages: 37428.61 },
-            { start: '2021-10', totalWages: 39007.25 },
-            { start: '2022-04', totalWages: 38594.64 },
-            { start: '2022-10', totalWages: 41070.33 },
-            { start: '2023-04', totalWages: 42354.02 },
-            { start: '2023-10', totalWages: 42896.90 },
-            { start: '2024-04', totalWages: 44462.95 },
-            { start: '2024-10', totalWages: 44738.03 },
-            { start: '2025-04', totalWages: 44426.48 },
-            { start: '2025-10', totalWages: 45884.18 }
+            { start: '2014-04', totalWages: 18696.00 },
+            { start: '2014-10', totalWages: 19697.42 },
+            { start: '2015-04', totalWages: 20834.98 },
+            { start: '2015-10', totalWages: 21103.70 },
+            { start: '2016-04', totalWages: 21349.27 },
+            { start: '2016-10', totalWages: 21753.36 },
+            { start: '2017-04', totalWages: 36594.29 },
+            { start: '2017-10', totalWages: 37660.23 },
+            { start: '2018-04', totalWages: 38866.88 },
+            { start: '2018-10', totalWages: 39674.54 },
+            { start: '2019-04', totalWages: 41206.44 },
+            { start: '2019-10', totalWages: 41862.98 },
+            { start: '2020-04', totalWages: 43516.58 },
+            { start: '2020-10', totalWages: 44165.76 },
+            { start: '2021-02', totalWages: 44165.76 },
+            { start: '2021-10', totalWages: 46028.56 },
+            { start: '2022-04', totalWages: 45541.67 },
+            { start: '2022-10', totalWages: 48462.99 },
+            { start: '2023-04', totalWages: 49977.75 },
+            { start: '2023-10', totalWages: 50618.35 },
+            { start: '2024-04', totalWages: 52466.28 },
+            { start: '2024-10', totalWages: 52790.87 },
+            { start: '2025-04', totalWages: 52423.25 },
+            { start: '2025-10', totalWages: 54143.33 }
         ];
 
         function getTotalWagesForMonth(yearMonth) {
@@ -95,11 +110,10 @@
 
         function generateMonths() {
             const joiningDate = new Date(document.getElementById('joiningDate').value);
-            const currentDate = new Date('2025-10-04'); // Current date as per query
+            const currentDate = new Date('2025-10-04');
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '';
             
-            let totalArrears = 0;
             let current = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
             
             while (current <= currentDate) {
@@ -151,48 +165,112 @@
 
         function generatePDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
             const name = document.getElementById('name').value;
+            const aadhaar = document.getElementById('aadhaar').value;
+            const bankAccount = document.getElementById('bankAccount').value;
+            const dob = document.getElementById('dob').value;
+            const mobile = document.getElementById('mobile').value;
+            const email = document.getElementById('email').value;
             const joiningDate = document.getElementById('joiningDate').value;
             const totalArrears = calculateTotalArrears();
 
+            // Set font to Times (closest approximation in jsPDF)
+            doc.setFont('times');
             doc.setFontSize(12);
-            doc.text('Arrears Claim Letter', 105, 10, { align: 'center' });
-            doc.text(`To: The Director, NIT Patna`, 20, 30);
-            doc.text(`From: ${name}`, 20, 40);
-            doc.text(`Date of Joining: ${joiningDate}`, 20, 50);
-            doc.text(`Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`, 20, 60);
-            doc.text(`Dear Sir/Madam,`, 20, 70);
-            doc.text(`I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`, 20, 80);
-            doc.text(`I hereby claim the following arrears based on underpayments and violations:`, 20, 90);
 
-            let y = 110;
-            doc.text('Month', 20, y);
-            doc.text('Required Total Wages', 50, y);
-            doc.text('Paid', 90, y);
-            doc.text('Difference', 130, y);
-            doc.text('Violation', 160, y);
+            // Initial setup
+            let y = 10;
+            const pageHeight = 297; // A4 height in mm
+            const margin = 10;
+            const lineHeight = 7;
+            const maxY = pageHeight - margin;
+
+            // Header
+            doc.setFontSize(16);
+            doc.text('Arrears Claim Letter', 105, y, { align: 'center' });
             y += 10;
 
+            // Additional Personal Details
+            doc.setFontSize(12);
+            doc.text(`Name: ${name}`, margin, y);
+            y += lineHeight;
+            doc.text(`Aadhaar Number: ${aadhaar}`, margin, y);
+            y += lineHeight;
+            doc.text(`Indian Bank Salary Account No.: ${bankAccount}`, margin, y);
+            y += lineHeight;
+            doc.text(`Date of Birth: ${dob}`, margin, y);
+            y += lineHeight;
+            doc.text(`Mobile Number: ${mobile}`, margin, y);
+            y += lineHeight;
+            doc.text(`Email Address: ${email}`, margin, y);
+            y += lineHeight;
+            doc.text(`To: The Director, NIT Patna`, margin, y);
+            y += lineHeight;
+            doc.text(`From: ${name}`, margin, y);
+            y += lineHeight;
+            doc.text(`Date of Joining: ${joiningDate}`, margin, y);
+            y += lineHeight;
+            doc.text(`Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`, margin, y);
+            y += 2 * lineHeight;
+
+            // Body
+            doc.text(`Dear Sir/Madam,`, margin, y);
+            y += lineHeight;
+            doc.text(`I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`, margin, y);
+            y += lineHeight;
+            doc.text(`I hereby claim the following arrears based on underpayments and violations:`, margin, y);
+            y += 2 * lineHeight;
+
+            // Table Headers
+            const headers = ['Month', 'Required Total Wages', 'Paid', 'Difference', 'Violation'];
+            const startX = margin;
+            const colWidth = 35; // Adjusted for better spacing
+            headers.forEach((header, index) => {
+                doc.text(header, startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
+            });
+            y += lineHeight;
+
+            // Table Data
             const rows = document.querySelectorAll('#payTable tbody tr');
             rows.forEach(row => {
                 const cells = row.children;
-                doc.text(cells[0].textContent, 20, y);
-                doc.text(cells[1].textContent, 50, y);
-                doc.text(cells[2].querySelector('input').value || '0', 90, y);
-                doc.text(cells[3].textContent, 130, y);
-                doc.text(cells[4].textContent, 160, y);
-                y += 10;
-                if (y > 270) {
+                const rowData = [
+                    cells[0].textContent,
+                    cells[1].textContent,
+                    cells[2].querySelector('input').value || '0',
+                    cells[3].textContent,
+                    cells[4].textContent
+                ];
+
+                if (y + lineHeight > maxY) {
                     doc.addPage();
-                    y = 20;
+                    y = margin + 10; // Reset y with margin
+                    headers.forEach((header, index) => {
+                        doc.text(header, startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
+                    });
+                    y += lineHeight;
                 }
+
+                rowData.forEach((data, index) => {
+                    doc.text(data.toString(), startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
+                });
+                y += lineHeight;
             });
 
-            doc.text(`Total Arrears: ₹${totalArrears.toFixed(2)}`, 20, y + 10);
-            doc.text(`Please release the arrears at the earliest.`, 20, y + 30);
-            doc.text(`Yours sincerely,`, 20, y + 40);
-            doc.text(name, 20, y + 50);
+            // Footer
+            if (y + (4 * lineHeight) > maxY) {
+                doc.addPage();
+                y = margin + 10;
+            }
+            y += lineHeight;
+            doc.text(`Total Arrears: ₹${totalArrears.toFixed(2)}`, margin, y);
+            y += lineHeight;
+            doc.text(`Please release the arrears at the earliest.`, margin, y);
+            y += lineHeight;
+            doc.text(`Yours sincerely,`, margin, y);
+            y += lineHeight;
+            doc.text(name, margin, y);
 
             doc.save('arrears-claim.pdf');
         }
