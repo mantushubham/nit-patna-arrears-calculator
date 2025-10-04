@@ -300,7 +300,7 @@
             y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
             
-            
+            // Body
             const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
             y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
             y += lineHeight;
@@ -375,7 +375,7 @@
                 doc.addPage();
                 y = margin;
             }
-            y = addWrappedText(doc, `Total Arrears: ₹${totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Total Arrears: Rs.{totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
             y += lineHeight;
 
             // Closing
