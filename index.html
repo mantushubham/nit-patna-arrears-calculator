@@ -318,12 +318,13 @@
             // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 25, 30, 30, 55];
-            doc.setFont('times', 'bold');
+            const colWidth = [30, 60, 60, 60, 60];
             headers.forEach((header, index) => {
+                doc.setFont('times', 'bold');
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
+                doc.setFont('times', 'normal');
             });
-            doc.setFont('times', 'normal');
+            
             y += lineHeight;
 
             // Table Data
