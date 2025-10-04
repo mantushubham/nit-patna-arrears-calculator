@@ -316,18 +316,12 @@
             y += lineHeight;
 
             // Table Headers
-            // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 30, 30, 30, 20]; // Increased widths: 80 for 'Required Total Wages', 60 for 'Consolidated Paid'
+            const colWidth = [30, 80, 60, 40, 30]; // Added 30 for 'Violation', adjusted for balance
             headers.forEach((header, index) => {
                 doc.setFont('times', 'bold');
                 const xPos = startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0);
-                // Ensure text fits within column width to avoid omission
-                const textWidth = doc.getTextWidth(header);
-                if (textWidth > colWidth[index]) {
-                    console.warn(`Warning: Header "${header}" may be truncated. Text width (${textWidth}) exceeds column width (${colWidth[index]}).`);
-                }
                 doc.text(header, xPos, y);
             });
             doc.setFont('times', 'normal');
