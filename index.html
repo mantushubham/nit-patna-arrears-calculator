@@ -76,331 +76,220 @@
     </div>
 
     <script>
-        const wageData = [
-            { month: 'Oct 2013', totalWages: 15661.71 },
-            { month: 'Apr 2014', totalWages: 16630.48 },
-            { month: 'Oct 2014', totalWages: 16791.94 },
-            { month: 'Apr 2015', totalWages: 17653.06 },
-            { month: 'Oct 2015', totalWages: 17892.22 },
-            { month: 'Apr 2016', totalWages: 18645.65 },
-            { month: 'Oct 2016', totalWages: 18998.57 },
-            { month: 'Apr 2017', totalWages: 31821.12 },
-            { month: 'Oct 2017', totalWages: 31915.45 },
-            { month: 'Apr 2018', totalWages: 32938.03 },
-            { month: 'Oct 2018', totalWages: 33622.50 },
-            { month: 'Apr 2019', totalWages: 34920.71 },
-            { month: 'Oct 2019', totalWages: 35477.10 },
-            { month: 'Apr 2020', totalWages: 36878.46 },
-            { month: 'Oct 2020', totalWages: 37428.61 },
-            { month: 'Feb 2021', totalWages: 37428.61 },
-            { month: 'Oct 2021', totalWages: 39007.25 },
-            { month: 'Apr 2022', totalWages: 38594.64 },
-            { month: 'Oct 2022', totalWages: 41070.33 },
-            { month: 'Apr 2023', totalWages: 42354.02 },
-            { month: 'Oct 2023', totalWages: 42896.90 },
-            { month: 'Apr 2024', totalWages: 44462.95 },
-            { month: 'Oct 2024', totalWages: 44738.03 },
-            { month: 'Apr 2025', totalWages: 44426.48 },
-            { month: 'Oct 2025', totalWages: 45884.18 }
-        ];
+    const wageData = [
+        { month: 'Oct 2013', totalWages: 15661.71 },
+        { month: 'Apr 2014', totalWages: 16630.48 },
+        { month: 'Oct 2014', totalWages: 16791.94 },
+        { month: 'Apr 2015', totalWages: 17653.06 },
+        { month: 'Oct 2015', totalWages: 17892.22 },
+        { month: 'Apr 2016', totalWages: 18645.65 },
+        { month: 'Oct 2016', totalWages: 18998.57 },
+        { month: 'Apr 2017', totalWages: 31821.12 },
+        { month: 'Oct 2017', totalWages: 31915.45 },
+        { month: 'Apr 2018', totalWages: 32938.03 },
+        { month: 'Oct 2018', totalWages: 33622.50 },
+        { month: 'Apr 2019', totalWages: 34920.71 },
+        { month: 'Oct 2019', totalWages: 35477.10 },
+        { month: 'Apr 2020', totalWages: 36878.46 },
+        { month: 'Oct 2020', totalWages: 37428.61 },
+        { month: 'Feb 2021', totalWages: 37428.61 },
+        { month: 'Oct 2021', totalWages: 39007.25 },
+        { month: 'Apr 2022', totalWages: 38594.64 },
+        { month: 'Oct 2022', totalWages: 41070.33 },
+        { month: 'Apr 2023', totalWages: 42354.02 },
+        { month: 'Oct 2023', totalWages: 42896.90 },
+        { month: 'Apr 2024', totalWages: 44462.95 },
+        { month: 'Oct 2024', totalWages: 44738.03 },
+        { month: 'Apr 2025', totalWages: 44426.48 },
+        { month: 'Oct 2025', totalWages: 45884.18 }
+    ];
 
-        function getTotalWagesForMonth(yearMonth) {
-            const [year, month] = yearMonth.split('-');
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const formattedMonth = `${month} ${year}`;
-            const applicable = wageData.find(w => w.month === formattedMonth);
-            if (!applicable) {
-                // Interpolate or use closest wage
-                const sortedWages = wageData.sort((a, b) => new Date(a.month) - new Date(b.month));
-                const targetDate = new Date(`${month} 1, ${year}`);
-                for (let i = 0; i < sortedWages.length - 1; i++) {
-                    const current = new Date(sortedWages[i].month);
-                    const next = new Date(sortedWages[i + 1].month);
-                    if (targetDate >= current && targetDate < next) {
-                        return sortedWages[i].totalWages; // Use previous wage
-                    }
-                }
-                return sortedWages[sortedWages.length - 1].totalWages; // Fallback to latest wage
+    function getTotalWagesForMonth(yearMonth) {
+        const [year, month] = yearMonth.split('-');
+        const formattedMonth = `${month} ${year}`;
+        const applicable = wageData.find(w => w.month === formattedMonth);
+        if (!applicable) {
+            const sorted = [...wageData].sort((a, b) => new Date(a.month) - new Date(b.month));
+            const target = new Date(`${month} 1, ${year}`);
+            for (let i = 0; i < sorted.length - 1; i++) {
+                const curr = new Date(sorted[i].month);
+                const next = new Date(sorted[i + 1].month);
+                if (target >= curr && target < next) return sorted[i].totalWages;
             }
-            return applicable.totalWages;
+            return sorted[sorted.length - 1].totalWages;
+        }
+        return applicable.totalWages;
+    }
+
+    function validateForm() {
+        const ids = ['name','aadhaar','bankAccount','dob','mobile','email','joiningDate'];
+        let valid = true;
+        ids.forEach(id => {
+            const input = document.getElementById(id);
+            const error = document.getElementById(`${id}-error`);
+            if (!input.value) { error.textContent = 'Required field'; valid = false; }
+            else if (!input.checkValidity()) { error.textContent = input.validationMessage; valid = false; }
+            else { error.textContent = ''; }
+        });
+        return valid;
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const [y,m,d] = dateStr.split('-');
+        return `${d}-${m}-${y}`;
+    }
+
+    function generateMonths() {
+        if (!validateForm()) { alert('Please fill required fields.'); return; }
+
+        const joiningDate = new Date(document.getElementById('joiningDate').value);
+        const current = new Date();
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        let dt = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let rowCount = 0;
+
+        while (dt <= current && rowCount < 180) {
+            const yearMonth = `${dt.getFullYear()}-${monthNames[dt.getMonth()]}`;
+            const required = getTotalWagesForMonth(yearMonth);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${yearMonth}</td>
+                <td>${required.toFixed(2)}</td>
+                <td><input type="number" class="paid-input" value="0" min="0" step="0.01" onchange="calculateDifference(this)"></td>
+                <td class="difference">0.00</td>
+                <td class="violation"></td>`;
+            tableBody.appendChild(tr);
+            dt.setMonth(dt.getMonth() + 1);
+            rowCount++;
         }
 
-        function validateForm() {
-            const inputs = ['name', 'aadhaar', 'bankAccount', 'dob', 'mobile', 'email', 'joiningDate'];
-            let isValid = true;
-            inputs.forEach(id => {
-                const input = document.getElementById(id);
-                const errorDiv = document.getElementById(`${id}-error`);
-                if (!input.value) {
-                    errorDiv.textContent = `Please enter ${input.name || id}.`;
-                    isValid = false;
-                } else if (!input.checkValidity()) {
-                    errorDiv.textContent = input.validationMessage || `Invalid ${input.name || id}.`;
-                    isValid = false;
-                } else {
-                    errorDiv.textContent = '';
-                }
+        document.getElementById('tableContainer').style.display = 'block';
+        calculateAllDifferences();
+    }
+
+    function calculateDifference(input) {
+        const row = input.closest('tr');
+        const required = parseFloat(row.children[1].textContent);
+        const paid = parseFloat(input.value) || 0;
+        const diff = required - paid;
+        row.children[3].textContent = diff.toFixed(2);
+        row.children[4].textContent = diff > 0 ? 'Underpaid' : 'No Violation';
+        row.children[4].classList.toggle('violation', diff > 0);
+        calculateTotalArrears();
+    }
+
+    function calculateAllDifferences() {
+        document.querySelectorAll('.paid-input').forEach(i => calculateDifference(i));
+    }
+
+    function calculateTotalArrears() {
+        let total = 0;
+        document.querySelectorAll('.difference').forEach(d => total += parseFloat(d.textContent) || 0);
+        document.getElementById('total-arrears').textContent = `Total Arrears: ₹${total.toFixed(2)}`;
+        return total;
+    }
+
+    // 🔹 PREVIEW FUNCTION
+    function previewClaim() {
+        if (!validateForm()) { alert('Please fill out all required fields correctly.'); return; }
+        if (document.querySelectorAll('#payTable tbody tr').length === 0) {
+            alert('Please generate months first.'); return;
+        }
+
+        const name = document.getElementById('name').value;
+        const aadhaar = document.getElementById('aadhaar').value;
+        const bank = document.getElementById('bankAccount').value;
+        const dob = formatDate(document.getElementById('dob').value);
+        const mobile = document.getElementById('mobile').value;
+        const email = document.getElementById('email').value;
+        const join = formatDate(document.getElementById('joiningDate').value);
+        const total = calculateTotalArrears();
+
+        let html = `
+        <div id="previewArea" style="margin-top:40px;border:1px solid #ccc;padding:20px;font-family:Arial;line-height:1.5">
+        <h2 style="text-align:center;">NIT Patna Ex-Servicemen Security Guards Arrears Claim Letter</h2>
+        <p><b>Name:</b> ${name}<br>
+        <b>Aadhaar:</b> ${aadhaar}<br>
+        <b>Date of Joining:</b> ${join}<br>
+        <b>Bank Account:</b> ${bank}<br>
+        <b>Date of Birth:</b> ${dob}<br>
+        <b>Mobile:</b> ${mobile}<br>
+        <b>Email:</b> ${email}</p>
+        <p><b>To,</b><br>The Director, NIT Patna</p>
+        <p><b>Subject:</b> Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances</p>
+        <p>Dear Sir/Madam,<br>
+        I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur. I hereby claim the following arrears based on underpayments and violations:</p>
+        <table border="1" cellspacing="0" cellpadding="4" style="width:100%;border-collapse:collapse;font-size:14px">
+        <tr style="background:#f2f2f2"><th>Month</th><th>Required Wages</th><th>Paid</th><th>Difference</th><th>Status</th></tr>`;
+
+        document.querySelectorAll('#payTable tbody tr').forEach(row => {
+            const cells = row.children;
+            html += `<tr>
+                <td>${cells[0].textContent}</td>
+                <td>${cells[1].textContent}</td>
+                <td>${cells[2].querySelector('input').value}</td>
+                <td>${cells[3].textContent}</td>
+                <td>${cells[4].textContent}</td>
+            </tr>`;
+        });
+
+        html += `</table>
+        <p><b>Total Arrears: ₹${total.toFixed(2)}</b></p>
+        <p>I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.</p>
+        <p>Yours sincerely,<br><b>${name}</b></p>
+        <button onclick="window.print()" style="margin-top:20px;padding:10px 20px;">🖨️ Print This Preview</button>
+        </div>`;
+
+        const previewDiv = document.getElementById('previewDiv') || document.createElement('div');
+        previewDiv.id = 'previewDiv';
+        previewDiv.innerHTML = html;
+        document.body.appendChild(previewDiv);
+        window.scrollTo({ top: previewDiv.offsetTop, behavior: 'smooth' });
+    }
+
+    // 🔹 FIXED PDF GENERATION (with no overlap)
+    function generatePDF() {
+        if (!validateForm()) { alert('Please fill out all required fields.'); return; }
+        if (document.querySelectorAll('#payTable tbody tr').length === 0) {
+            alert('Please generate months first.'); return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const name = document.getElementById('name').value;
+        const total = calculateTotalArrears();
+
+        let y = 10, margin = 10, lh = 7, pageH = 297, maxY = pageH - margin;
+        const contentW = 190;
+        const addText = (t,b=false) => {
+            doc.setFont('times', b?'bold':'normal');
+            doc.splitTextToSize(t, contentW).forEach(line=>{
+                if(y+lh>maxY){doc.addPage();y=margin;}
+                doc.text(line, margin, y); y+=lh;
             });
+        };
 
-            // Custom date validation
-            const joiningDate = new Date(document.getElementById('joiningDate').value);
-            const dob = new Date(document.getElementById('dob').value);
-            const currentDate = new Date();
-            if (isNaN(joiningDate.getTime()) || joiningDate > currentDate) {
-                document.getElementById('joiningDate-error').textContent = 'Joining date must be valid and not in the future.';
-                isValid = false;
-            }
-            if (isNaN(dob.getTime()) || dob > currentDate) {
-                document.getElementById('dob-error').textContent = 'Date of birth must be valid and not in the future.';
-                isValid = false;
-            }
-            return isValid;
-        }
+        doc.setFont('times','bold'); doc.setFontSize(16);
+        addText('NIT Patna Ex-Servicemen Security Guards Arrears Claim Letter',true); y+=5;
+        doc.setFontSize(12);
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const [year, month, day] = dateStr.split('-');
-            return `${day}-${month}-${year}`;
-        }
+        addText(document.getElementById('previewArea').innerText); // export preview text directly
+        doc.save(`${name}_Arrears_Claim.pdf`);
+    }
 
-        function generateMonths() {
-            if (!validateForm()) {
-                alert('Please fill out all required fields correctly.');
-                return;
-            }
+    // event listeners
+    document.getElementById('generateMonthsBtn').addEventListener('click', generateMonths);
 
-            const joiningDateInput = document.getElementById('joiningDate').value;
-            const joiningDate = new Date(joiningDateInput);
-            const currentDate = new Date(); // Dynamic current date
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
-            
-            let current = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            let rowCount = 0;
-            const maxRows = 180; // Limit to 10 years of months
+    // dynamically insert preview and pdf buttons after table
+    const container = document.getElementById('tableContainer');
+    const previewBtn = document.createElement('button');
+    previewBtn.textContent = 'Preview Arrears Claim Letter';
+    previewBtn.style.marginTop = '10px';
+    previewBtn.onclick = previewClaim;
+    container.appendChild(previewBtn);
 
-            while (current <= currentDate && rowCount < maxRows) {
-                const year = current.getFullYear();
-                const month = monthNames[current.getMonth()];
-                const yearMonth = `${year}-${month}`;
-                const requiredTotalWages = getTotalWagesForMonth(yearMonth);
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${yearMonth}</td>
-                    <td>${requiredTotalWages.toFixed(2)}</td>
-                    <td><input type="number" class="paid-input" value="0" min="0" step="0.01" onchange="calculateDifference(this)" aria-label="Consolidated Pay for ${yearMonth}"></td>
-                    <td class="difference">0.00</td>
-                    <td class="violation"></td>
-                `;
-                tableBody.appendChild(row);
-                
-                current.setMonth(current.getMonth() + 1);
-                rowCount++;
-            }
+    document.getElementById('generatePDFBtn').addEventListener('click', generatePDF);
+</script>
 
-            if (rowCount >= maxRows) {
-                alert('Warning: Date range is too large. Showing up to 10 years of data.');
-            }
-            
-            document.getElementById('tableContainer').style.display = 'block';
-            calculateAllDifferences();
-        }
-
-        function calculateDifference(input) {
-            const row = input.parentElement.parentElement;
-            const required = parseFloat(row.children[1].textContent);
-            const paid = parseFloat(input.value) || 0;
-            const diff = required - paid;
-            row.children[3].textContent = diff.toFixed(2);
-            row.children[4].textContent = diff > 0 ? 'Underpaid' : 'No Violation';
-            row.children[4].classList.toggle('violation', diff > 0);
-            calculateTotalArrears();
-        }
-
-        function calculateAllDifferences() {
-            const inputs = document.querySelectorAll('.paid-input');
-            inputs.forEach(input => calculateDifference(input));
-        }
-
-        function calculateTotalArrears() {
-            const diffs = document.querySelectorAll('.difference');
-            let total = 0;
-            diffs.forEach(diff => {
-                total += parseFloat(diff.textContent) || 0;
-            });
-            document.getElementById('total-arrears').textContent = `Total Arrears: ₹${total.toFixed(2)}`;
-            return total;
-        }
-
-        function addWrappedText(doc, text, x, y, maxWidth, lineHeight) {
-            const lines = doc.splitTextToSize(text, maxWidth);
-            lines.forEach(line => {
-                doc.text(line, x, y);
-                y += lineHeight;
-            });
-            return y;
-        }
-
-        function generatePDF() {
-            if (!validateForm()) {
-                alert('Please fill out all required fields correctly before generating the PDF.');
-                return;
-            }
-
-            if (!window.jspdf) {
-                alert('Error: jsPDF library failed to load. Please check your internet connection or try again later.');
-                return;
-            }
-
-            if (document.querySelectorAll('#payTable tbody tr').length === 0) {
-                alert('Please generate the payment table before creating the PDF.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            const name = document.getElementById('name').value;
-            const aadhaar = document.getElementById('aadhaar').value;
-            const bankAccount = document.getElementById('bankAccount').value;
-            const dob = formatDate(document.getElementById('dob').value);
-            const mobile = document.getElementById('mobile').value;
-            const email = document.getElementById('email').value;
-            const joiningDate = formatDate(document.getElementById('joiningDate').value);
-            const totalArrears = calculateTotalArrears();
-
-            // Set font to Times
-            doc.setFont('times');
-            doc.setFontSize(12);
-
-            // Initial setup
-            let y = 10;
-            const pageWidth = 210;
-            const pageHeight = 297;
-            const margin = 10;
-            const lineHeight = 7;
-            const maxY = pageHeight - margin;
-            const contentWidth = pageWidth - 2 * margin;
-
-            // Header
-            doc.setFontSize(16);
-            doc.setFont('times', 'bold');
-            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin+15, y, contentWidth, lineHeight + 3);
-            y += lineHeight;
-
-            // Additional Personal Details
-            doc.setFontSize(12);
-            doc.setFont('times', 'normal');
-            y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Email Address: ${email}\n`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `To,`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
-            
-            // Body
-            const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
-            y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
-
-            // Body
-            y = addWrappedText(doc, `Dear Sir/Madam,`, margin, y, contentWidth, lineHeight);
-            const bodyText1 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
-            y = addWrappedText(doc, bodyText1, margin, y, contentWidth, lineHeight);
-            const bodyText2 = `I hereby claim the following arrears based on underpayments and violations:`;
-            y = addWrappedText(doc, bodyText2, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
-
-            // Table Headers
-            const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
-            const startX = margin;
-            const colWidth = [30, 80, 60, 40, 30]; // Added 30 for 'Violation', adjusted for balance
-            headers.forEach((header, index) => {
-                doc.setFont('times', 'bold');
-                const xPos = startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0);
-                doc.text(header, xPos, y);
-            });
-            doc.setFont('times', 'normal');
-            y += lineHeight;
-
-            // Table Data
-            const rows = document.querySelectorAll('#payTable tbody tr');
-            rows.forEach(row => {
-                if (y + lineHeight > maxY) {
-                    doc.addPage();
-                    y = margin;
-                    headers.forEach((header, index) => {
-                        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y);
-                    });
-                    y += lineHeight;
-                }
-
-                const cells = row.children;
-                const yearMonth = cells[0].textContent.split('-');
-                const month = yearMonth[1];
-                const year = yearMonth[0];
-                const formattedMonth = `${month} ${year}`;
-                const rowData = [
-                    formattedMonth,
-                    cells[1].textContent,
-                    cells[2].querySelector('input').value || '0',
-                    cells[3].textContent,
-                    cells[4].textContent
-                ];
-
-                let maxLines = 1;
-                const cellLines = rowData.map((data, index) => doc.splitTextToSize(data.toString(), colWidth[index] - 2));
-                cellLines.forEach(lines => {
-                    if (lines.length > maxLines) maxLines = lines.length;
-                });
-
-                cellLines.forEach((lines, colIndex) => {
-                    lines.forEach((line, lineIndex) => {
-                        if (y + lineHeight * (lineIndex + 1) > maxY) {
-                            doc.addPage();
-                            y = margin;
-                            headers.forEach((header, index) => {
-                                doc.setFont('times', 'bold');
-                                doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y);                               
-                            });
-                            doc.setFont('times', 'normal');
-                            y += lineHeight;
-                        }
-                        doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[lineIndex] - 2 });
-                    });
-                });
-
-                y += lineHeight * maxLines;
-            });
-
-            // Total Arrears
-            if (y + lineHeight > maxY) {
-                doc.addPage();
-                y = margin;
-            }
-            doc.setFont('times', 'bold');
-            y = addWrappedText(doc, `Total Arrears: Rs. ${totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
-            doc.setFont('times', 'normal');
-            y += lineHeight;
-
-            // Closing
-            const closingText = `I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.`;
-            y = addWrappedText(doc, closingText, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
-            y = addWrappedText(doc, `Yours sincerely,`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, name, margin, y, contentWidth, lineHeight);
-
-            // Save the PDF
-            doc.save(`${name}_Arrears_Claim.pdf`);
-        }
-
-        // Event Listeners
-        document.getElementById('generateMonthsBtn').addEventListener('click', generateMonths);
-        document.getElementById('generatePDFBtn').addEventListener('click', generatePDF);
-    </script>
-</body>
-</html>
