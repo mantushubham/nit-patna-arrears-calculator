@@ -261,35 +261,35 @@
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            const name = document.getElementById('name').value;
-            const aadhaar = document.getElementById('aadhaar').value;
-            const bankAccount = document.getElementById('bankAccount').value;
-            const dob = formatDate(document.getElementById('dob').value);
-            const mobile = document.getElementById('mobile').value;
-            const email = document.getElementById('email').value;
-            const joiningDate = formatDate(document.getElementById('joiningDate').value);
+
+            const name         = document.getElementById('name').value;
+            const aadhaar      = document.getElementById('aadhaar').value;
+            const bankAccount  = document.getElementById('bankAccount').value;
+            const dob          = formatDate(document.getElementById('dob').value);
+            const mobile       = document.getElementById('mobile').value;
+            const email        = document.getElementById('email').value;
+            const joiningDate  = formatDate(document.getElementById('joiningDate').value);
             const totalArrears = calculateTotalArrears();
 
-            // Set font to Times
             doc.setFont('times');
             doc.setFontSize(12);
 
-            // Initial setup
-            let y = 10;
-            const pageWidth = 210;
-            const pageHeight = 297;
-            const margin = 10;
-            const lineHeight = 7;
-            const maxY = pageHeight - margin;
+            // Page and layout config
+            let y             = 10;
+            const pageWidth   = 210;
+            const pageHeight  = 297;
+            const margin      = 10;
+            const lineHeight  = 7;
+            const maxY        = pageHeight - margin;
             const contentWidth = pageWidth - 2 * margin;
 
             // Header
             doc.setFontSize(16);
             doc.setFont('times', 'bold');
-            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin+15, y, contentWidth, lineHeight + 3);
+            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin + 15, y, contentWidth, lineHeight + 3);
             y += lineHeight;
 
-            // Additional Personal Details
+            // Personal Info
             doc.setFontSize(12);
             doc.setFont('times', 'normal');
             y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
@@ -301,51 +301,50 @@
             y = addWrappedText(doc, `Email Address: ${email}\n`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `To,`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
-            
-            // Body
+
+            // Subject & Body
             const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
             y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
             y += lineHeight;
 
-            // Body
-            y = addWrappedText(doc, `Dear Sir/Madam,`, margin, y, contentWidth, lineHeight);
-            const bodyText1 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
+            const bodyText1 = `Dear Sir/Madam,`;
+            const bodyText2 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
+            const bodyText3 = `I hereby claim the following arrears based on underpayments and violations:`;
             y = addWrappedText(doc, bodyText1, margin, y, contentWidth, lineHeight);
-            const bodyText2 = `I hereby claim the following arrears based on underpayments and violations:`;
             y = addWrappedText(doc, bodyText2, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, bodyText3, margin, y, contentWidth, lineHeight);
             y += lineHeight;
 
-            // Table Headers
-            const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
-            const startX = margin;
-            const colWidth = [30, 80, 60, 40, 30]; // Added 30 for 'Violation', adjusted for balance
-            headers.forEach((header, index) => {
-                doc.setFont('times', 'bold');
-                const xPos = startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0);
-                doc.text(header, xPos, y);
-            });
-            doc.setFont('times', 'normal');
-            y += lineHeight;
+            // Table Header Setup
+            const headers  = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
+            const colWidth = [30, 45, 35, 40, 40];
+            const startX   = margin;
 
-            // Table Data
+            function drawTableHeader() {
+                headers.forEach((header, index) => {
+                    const x = startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0);
+                    doc.setFont('times', 'bold');
+                    doc.text(header, x, y);
+                });
+                doc.setFont('times', 'normal');
+                y += lineHeight;
+            }
+
+            drawTableHeader();
+
+            // Table Rows
             const rows = document.querySelectorAll('#payTable tbody tr');
             rows.forEach(row => {
                 if (y + lineHeight > maxY) {
                     doc.addPage();
                     y = margin;
-                    headers.forEach((header, index) => {
-                        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y);
-                    });
-                    y += lineHeight;
+                    drawTableHeader();
                 }
 
                 const cells = row.children;
-                const yearMonth = cells[0].textContent.split('-');
-                const month = yearMonth[1];
-                const year = yearMonth[0];
-                const formattedMonth = `${month} ${year}`;
+                const [year, month] = cells[0].textContent.split('-');
                 const rowData = [
-                    formattedMonth,
+                    `${month} ${year}`,
                     cells[1].textContent,
                     cells[2].querySelector('input').value || '0',
                     cells[3].textContent,
@@ -353,24 +352,21 @@
                 ];
 
                 let maxLines = 1;
-                const cellLines = rowData.map((data, index) => doc.splitTextToSize(data.toString(), colWidth[index] - 2));
-                cellLines.forEach(lines => {
-                    if (lines.length > maxLines) maxLines = lines.length;
+                const wrappedLines = rowData.map((text, i) => {
+                    const lines = doc.splitTextToSize(text.toString(), colWidth[i] - 2);
+                    maxLines = Math.max(maxLines, lines.length);
+                    return lines;
                 });
 
-                cellLines.forEach((lines, colIndex) => {
+                wrappedLines.forEach((lines, colIndex) => {
+                    const x = startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0);
                     lines.forEach((line, lineIndex) => {
                         if (y + lineHeight * (lineIndex + 1) > maxY) {
                             doc.addPage();
                             y = margin;
-                            headers.forEach((header, index) => {
-                                doc.setFont('times', 'bold');
-                                doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y);                               
-                            });
-                            doc.setFont('times', 'normal');
-                            y += lineHeight;
+                            drawTableHeader();
                         }
-                        doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[lineIndex] - 2 });
+                        doc.text(line, x, y + lineHeight * lineIndex);
                     });
                 });
 
@@ -382,19 +378,20 @@
                 doc.addPage();
                 y = margin;
             }
+
             doc.setFont('times', 'bold');
             y = addWrappedText(doc, `Total Arrears: Rs. ${totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
             doc.setFont('times', 'normal');
             y += lineHeight;
 
-            // Closing
             const closingText = `I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.`;
             y = addWrappedText(doc, closingText, margin, y, contentWidth, lineHeight);
             y += lineHeight;
+
             y = addWrappedText(doc, `Yours sincerely,`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, name, margin, y, contentWidth, lineHeight);
 
-            // Save the PDF
+            // Save
             doc.save(`${name}_Arrears_Claim.pdf`);
         }
 
