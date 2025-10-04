@@ -333,7 +333,7 @@
                     doc.addPage();
                     y = margin;
                     headers.forEach((header, index) => {
-                        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
+                        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y);
                     });
                     y += lineHeight;
                 }
