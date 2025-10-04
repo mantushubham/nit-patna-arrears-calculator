@@ -178,7 +178,7 @@
             let current = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             let rowCount = 0;
-            const maxRows = 120; // Limit to 10 years of months
+            const maxRows = 180; // Limit to 10 years of months
 
             while (current <= currentDate && rowCount < maxRows) {
                 const year = current.getFullYear();
@@ -318,7 +318,7 @@
             // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 60, 60, 60, 60];
+            const colWidth = [30, 40, 40, 40, 35];
             headers.forEach((header, index) => {
                 doc.setFont('times', 'bold');
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
