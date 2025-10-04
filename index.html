@@ -319,7 +319,7 @@
             // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 80, 60, 38, 20]; // Increased widths: 80 for 'Required Total Wages', 60 for 'Consolidated Paid'
+            const colWidth = [30, 50, 50, 38, 20]; // Increased widths: 80 for 'Required Total Wages', 60 for 'Consolidated Paid'
             headers.forEach((header, index) => {
                 doc.setFont('times', 'bold');
                 const xPos = startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0);
