@@ -318,7 +318,7 @@
             // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 50, 50, 50, 10];
+            const colWidth = [15, 40, 40, 20, 10];
             headers.forEach((header, index) => {
                 doc.setFont('times', 'bold');
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
@@ -364,9 +364,9 @@
                             y = margin;
                             headers.forEach((header, index) => {
                                 doc.setFont('times', 'bold');
-                                doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
-                                doc.setFont('times', 'normal');
+                                doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });                               
                             });
+                            doc.setFont('times', 'normal');
                             y += lineHeight;
                         }
                         doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[lineIndex] - 2 });
