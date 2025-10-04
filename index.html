@@ -214,7 +214,7 @@
             const paid = parseFloat(input.value) || 0;
             const diff = required - paid;
             row.children[3].textContent = diff.toFixed(2);
-            row.children[4].textContent = diff > 0 ? 'Violation: Underpaid' : 'No Violation';
+            row.children[4].textContent = diff > 0 ? 'Underpaid' : 'No Violation';
             row.children[4].classList.toggle('violation', diff > 0);
             calculateTotalArrears();
         }
@@ -285,19 +285,21 @@
 
             // Header
             doc.setFontSize(16);
-            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin+5, y, contentWidth, lineHeight + 3);
+            doc.setFont('times', 'bold');
+            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin+15, y, contentWidth, lineHeight + 3);
             y += lineHeight;
 
             // Additional Personal Details
             doc.setFontSize(12);
+            doc.setFont('times', 'normal');
             y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Email Address: ${email}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Email Address: ${email}\n`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `To,`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
             
             // Body
@@ -314,12 +316,14 @@
             y += lineHeight;
 
             // Table Headers
-            const headers = ['Month', 'Required Total Wages', 'Paid', 'Difference', 'Violation'];
+            const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
             const colWidth = [30, 40, 25, 30, 55];
+            doc.setFont('times', 'bold');
             headers.forEach((header, index) => {
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
             });
+            doc.setFont('times', 'normal');
             y += lineHeight;
 
             // Table Data
@@ -375,8 +379,10 @@
                 doc.addPage();
                 y = margin;
             }
-            y = addWrappedText(doc, `Total Arrears: Rs.{totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
+            doc.setFont('times', 'bold');
+            y = addWrappedText(doc, `Total Arrears: Rs. `{totalArrears.toFixed(2)}, margin, y, contentWidth, lineHeight);
             y += lineHeight;
+            doc.setFont('times', 'normal');
 
             // Closing
             const closingText = `I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.`;
