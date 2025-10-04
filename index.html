@@ -103,6 +103,15 @@
         }
 
         function generateMonths() {
+            if (!name || !aadhaar || !bankAccount || !dob || !mobile || !email || !joiningDate) {
+                alert('Please fill out all required fields before generating the PDF.');
+                return;
+            }
+            if (!window.jspdf) {
+                console.error('jsPDF library not loaded');
+                alert('Error: jsPDF library failed to load. Please check your internet connection or try again later.');
+                return;
+            }
             const joiningDate = new Date(document.getElementById('joiningDate').value);
             const currentDate = new Date('2025-10-04');
             const tableBody = document.getElementById('tableBody');
@@ -170,85 +179,102 @@
         }
 
         function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            const name = document.getElementById('name').value;
-            const aadhaar = document.getElementById('aadhaar').value;
-            const bankAccount = document.getElementById('bankAccount').value;
-            const dob = document.getElementById('dob').value;
-            const mobile = document.getElementById('mobile').value;
-            const email = document.getElementById('email').value;
-            const joiningDate = document.getElementById('joiningDate').value;
-            const totalArrears = calculateTotalArrears();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const name = document.getElementById('name').value;
+    const aadhaar = document.getElementById('aadhaar').value;
+    const bankAccount = document.getElementById('bankAccount').value;
+    const dob = document.getElementById('dob').value;
+    const mobile = document.getElementById('mobile').value;
+    const email = document.getElementById('email').value;
+    const joiningDate = document.getElementById('joiningDate').value;
+    const totalArrears = calculateTotalArrears();
 
-            // Set font to Times (closest approximation in jsPDF)
-            doc.setFont('times');
-            doc.setFontSize(12);
+    // Set font to Times (closest approximation in jsPDF)
+    doc.setFont('times');
+    doc.setFontSize(12);
 
-            // Initial setup
-            let y = 10;
-            const pageWidth = 210;
-            const pageHeight = 297; // A4 height in mm
-            const margin = 10;
-            const lineHeight = 7;
-            const maxY = pageHeight - margin;
-            const contentWidth = pageWidth - 2 * margin;
+    // Initial setup
+    let y = 10;
+    const pageWidth = 210;
+    const pageHeight = 297; // A4 height in mm
+    const margin = 10;
+    const lineHeight = 7;
+    const maxY = pageHeight - margin;
+    const contentWidth = pageWidth - 2 * margin;
 
-            // Header
-            doc.setFontSize(16);
-            y = addWrappedText(doc, 'Arrears Claim Letter', margin, y, contentWidth, lineHeight + 3);
-            y += lineHeight;
+    // Header
+    doc.setFontSize(16);
+    y = addWrappedText(doc, 'Arrears Claim Letter', margin, y, contentWidth, lineHeight + 3);
+    y += lineHeight;
 
-            // Additional Personal Details
-            doc.setFontSize(12);
-            y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Email Address: ${email}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `From: ${name}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
-            const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
-            y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
+    // Additional Personal Details
+    doc.setFontSize(12);
+    y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Email Address: ${email}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `From: ${name}`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
+    const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
+    y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
+    y += lineHeight;
 
-            // Body
-            y = addWrappedText(doc, `Dear Sir/Madam,`, margin, y, contentWidth, lineHeight);
-            const bodyText1 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
-            y = addWrappedText(doc, bodyText1, margin, y, contentWidth, lineHeight);
-            const bodyText2 = `I hereby claim the following arrears based on underpayments and violations:`;
-            y = addWrappedText(doc, bodyText2, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
+    // Body
+    y = addWrappedText(doc, `Dear Sir/Madam,`, margin, y, contentWidth, lineHeight);
+    const bodyText1 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
+    y = addWrappedText(doc, bodyText1, margin, y, contentWidth, lineHeight);
+    const bodyText2 = `I hereby claim the following arrears based on underpayments and violations:`;
+    y = addWrappedText(doc, bodyText2, margin, y, contentWidth, lineHeight);
+    y += lineHeight;
 
-            // Table Headers
-            const headers = ['Month', 'Required Total Wages', 'Paid', 'Difference', 'Violation'];
-            const startX = margin;
-            const colWidth = [25, 40, 25, 30, 60]; // Custom widths to fit content, total ~180mm
+    // Table Headers
+    const headers = ['Month', 'Required Total Wages', 'Paid', 'Difference', 'Violation'];
+    const startX = margin;
+    const colWidth = [25, 40, 25, 30, 60]; // Custom widths to fit content, total ~180mm
+    headers.forEach((header, index) => {
+        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
+    });
+    y += lineHeight;
+
+    // Table Data
+    const rows = document.querySelectorAll('#payTable tbody tr');
+    rows.forEach(row => {
+        if (y + lineHeight > maxY) {
+            doc.addPage();
+            y = margin;
             headers.forEach((header, index) => {
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
             });
             y += lineHeight;
+        }
 
-            // Table Data
-            const rows = document.querySelectorAll('#payTable tbody tr');
-            rows.forEach(row => {
-                const cells = row.children;
-                const yearMonth = cells[0].textContent.split('-');
-                const month = yearMonth[1];
-                const year = yearMonth[0];
-                const formattedMonth = `${month} ${year}`;
-                const rowData = [
-                    formattedMonth,
-                    cells[1].textContent,
-                    cells[2].querySelector('input').value || '0',
-                    cells[3].textContent,
-                    cells[4].textContent
-                ];
+        const cells = row.children;
+        const yearMonth = cells[0].textContent.split('-');
+        const month = yearMonth[1];
+        const year = yearMonth[0];
+        const formattedMonth = `${month} ${year}`;
+        const rowData = [
+            formattedMonth,
+            cells[1].textContent,
+            cells[2].querySelector('input').value || '0',
+            cells[3].textContent,
+            cells[4].textContent
+        ];
 
-                if (y + lineHeight > maxY) {
+        let maxLines = 1;
+        const cellLines = rowData.map((data, index) => doc.splitTextToSize(data.toString(), colWidth[index] - 2));
+        cellLines.forEach(lines => {
+            if (lines.length > maxLines) maxLines = lines.length;
+        });
+
+        cellLines.forEach((lines, colIndex) => {
+            lines.forEach((line, lineIndex) => {
+                if (y + lineHeight * (lineIndex + 1) > maxY) {
                     doc.addPage();
                     y = margin;
                     headers.forEach((header, index) => {
@@ -256,8 +282,28 @@
                     });
                     y += lineHeight;
                 }
+                doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[colIndex] - 2 });
+            });
+        });
 
-                let maxLines = 1;
-                const cellLines = rowData.map((data, index) => doc.splitTextToSize(data.toString(), colWidth[index] - 2));
-                cellLines.forEach(lines => {
-                    if (lines.length > maxLines
+        y += lineHeight * maxLines;
+    });
+
+    // Total Arrears
+    if (y + lineHeight > maxY) {
+        doc.addPage();
+        y = margin;
+    }
+    y = addWrappedText(doc, `Total Arrears: ₹${totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
+    y += lineHeight;
+
+    // Closing
+    const closingText = `I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.`;
+    y = addWrappedText(doc, closingText, margin, y, contentWidth, lineHeight);
+    y += lineHeight;
+    y = addWrappedText(doc, `Yours sincerely,`, margin, y, contentWidth, lineHeight);
+    y = addWrappedText(doc, name, margin, y, contentWidth, lineHeight);
+
+    // Save the PDF
+    doc.save(`${name}_Arrears_Claim.pdf`);
+}
