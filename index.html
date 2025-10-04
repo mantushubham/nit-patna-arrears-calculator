@@ -362,7 +362,7 @@
                             });
                             y += lineHeight;
                         }
-                        doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[index] - 2 });
+                        doc.text(line, startX + colWidth.slice(0, colIndex).reduce((a, b) => a + b, 0), y + lineHeight * lineIndex, { maxWidth: colWidth[lineIndex] - 2 });
                     });
                 });
 
