@@ -285,21 +285,22 @@
 
             // Header
             doc.setFontSize(16);
-            y = addWrappedText(doc, 'Arrears Claim Letter', margin, y, contentWidth, lineHeight + 3);
+            y = addWrappedText(doc, 'NIT Patna Ex-SM Security Guards Arrears Claim Letter', margin+5, y, contentWidth, lineHeight + 3);
             y += lineHeight;
 
             // Additional Personal Details
             doc.setFontSize(12);
             y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `Email Address: ${email}`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
             y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `From: ${name}`, margin, y, contentWidth, lineHeight);
-            y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
+            
+            
             const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
             y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
             y += lineHeight;
