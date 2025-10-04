@@ -380,9 +380,9 @@
                 y = margin;
             }
             doc.setFont('times', 'bold');
-            y = addWrappedText(doc, `Total Arrears: Rs. `{totalArrears.toFixed(2)}, margin, y, contentWidth, lineHeight);
-            y += lineHeight;
+            y = addWrappedText(doc, `Total Arrears: Rs. ${totalArrears.toFixed(2)}`, margin, y, contentWidth, lineHeight);
             doc.setFont('times', 'normal');
+            y += lineHeight;
 
             // Closing
             const closingText = `I kindly request the immediate release of the above arrears along with applicable interest. Please address this matter at the earliest convenience.`;
