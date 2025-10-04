@@ -252,32 +252,98 @@
 
     // 🔹 FIXED PDF GENERATION (with no overlap)
     function generatePDF() {
-        if (!validateForm()) { alert('Please fill out all required fields.'); return; }
-        if (document.querySelectorAll('#payTable tbody tr').length === 0) {
-            alert('Please generate months first.'); return;
-        }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const name = document.getElementById('name').value;
-        const total = calculateTotalArrears();
-
-        let y = 10, margin = 10, lh = 7, pageH = 297, maxY = pageH - margin;
-        const contentW = 190;
-        const addText = (t,b=false) => {
-            doc.setFont('times', b?'bold':'normal');
-            doc.splitTextToSize(t, contentW).forEach(line=>{
-                if(y+lh>maxY){doc.addPage();y=margin;}
-                doc.text(line, margin, y); y+=lh;
-            });
-        };
-
-        doc.setFont('times','bold'); doc.setFontSize(16);
-        addText('NIT Patna Ex-Servicemen Security Guards Arrears Claim Letter',true); y+=5;
-        doc.setFontSize(12);
-
-        addText(document.getElementById('previewArea').innerText); // export preview text directly
-        doc.save(`${name}_Arrears_Claim.pdf`);
+    if (!validateForm()) {
+        alert('Please fill out all required fields.');
+        return;
     }
+    if (document.querySelectorAll('#payTable tbody tr').length === 0) {
+        alert('Please generate months first.');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const name = document.getElementById('name').value;
+    const aadhaar = document.getElementById('aadhaar').value;
+    const bank = document.getElementById('bankAccount').value;
+    const dob = formatDate(document.getElementById('dob').value);
+    const mobile = document.getElementById('mobile').value;
+    const email = document.getElementById('email').value;
+    const join = formatDate(document.getElementById('joiningDate').value);
+    const total = calculateTotalArrears();
+
+    let y = 10, margin = 10, lh = 7, pageH = 297, maxY = pageH - margin;
+    const contentW = 190;
+    const addText = (t, b = false) => {
+        doc.setFont('times', b ? 'bold' : 'normal');
+        const lines = doc.splitTextToSize(t, contentW);
+        lines.forEach(line => {
+            if (y + lh > maxY) { doc.addPage(); y = margin; }
+            doc.text(line, margin, y); y += lh;
+        });
+    };
+
+    doc.setFont('times', 'bold');
+    doc.setFontSize(16);
+    addText('NIT Patna Ex-Servicemen Security Guards Arrears Claim Letter', true);
+    y += 5;
+    doc.setFontSize(12);
+    doc.setFont('times', 'normal');
+
+    // Personal details
+    addText(`Name: ${name}`);
+    addText(`Aadhaar: ${aadhaar}`);
+    addText(`Date of Joining: ${join}`);
+    addText(`Bank Account: ${bank}`);
+    addText(`Date of Birth: ${dob}`);
+    addText(`Mobile: ${mobile}`);
+    addText(`Email: ${email}`);
+    y += 5;
+
+    // Subject and letter
+    addText("To,");
+    addText("The Director, NIT Patna");
+    addText("Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances");
+    addText("Dear Sir/Madam,");
+    addText("I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur. I hereby claim the following arrears based on underpayments and violations:");
+
+    // Table Header
+    y += 3;
+    const headers = ["Month", "Required Wages", "Paid", "Difference", "Violation"];
+    const colWidths = [35, 35, 30, 30, 40];
+    const colStart = margin;
+    const colSpacing = colWidths.reduce((a, b) => a + b, 0);
+
+    const drawRow = (rowData) => {
+        if (y + lh > maxY) { doc.addPage(); y = margin; }
+        let x = margin;
+        rowData.forEach((text, i) => {
+            doc.rect(x, y - 5, colWidths[i], lh + 2); // draw cell
+            doc.text(`${text}`, x + 1, y); // add text
+            x += colWidths[i];
+        });
+        y += lh + 2;
+    };
+
+    // Draw table header
+    doc.setFont('times', 'bold');
+    drawRow(headers);
+    doc.setFont('times', 'normal');
+
+    // Draw table rows
+    document.querySelectorAll('#payTable tbody tr').forEach(row => {
+        const month = row.children[0].textContent;
+        const required = row.children[1].textContent;
+        const paid = row.children[2].querySelector('input').value;
+        const diff = row.children[3].textContent;
+        const status = row.children[4].textContent;
+        drawRow([month, required, paid, diff, status]);
+    });
+
+    // Total arrears
+    y += 5;
+    addText(`Total Arrears: ₹${total.
 
     // event listeners
     document.getElementById('generateMonthsBtn').addEventListener('click', generateMonths);
