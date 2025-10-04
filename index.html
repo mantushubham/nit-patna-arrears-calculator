@@ -316,9 +316,9 @@
             y += lineHeight;
 
             // Table Headers
-            const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation']\n;
+            const headers = ['Month', 'Required Total Wages', 'Consolidated Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = [30, 40, 25, 30, 55];
+            const colWidth = [30, 55, 55, 30, 55];
             doc.setFont('times', 'bold');
             headers.forEach((header, index) => {
                 doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
