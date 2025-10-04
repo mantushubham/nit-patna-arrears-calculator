@@ -68,44 +68,38 @@
 
     <script>
         const wageData = [
-            { start: '2013-10', totalWages: 15661.71 },
-            { start: '2014-04', totalWages: 18696.00 },
-            { start: '2014-10', totalWages: 19697.42 },
-            { start: '2015-04', totalWages: 20834.98 },
-            { start: '2015-10', totalWages: 21103.70 },
-            { start: '2016-04', totalWages: 21349.27 },
-            { start: '2016-10', totalWages: 21753.36 },
-            { start: '2017-04', totalWages: 36594.29 },
-            { start: '2017-10', totalWages: 37660.23 },
-            { start: '2018-04', totalWages: 38866.88 },
-            { start: '2018-10', totalWages: 39674.54 },
-            { start: '2019-04', totalWages: 41206.44 },
-            { start: '2019-10', totalWages: 41862.98 },
-            { start: '2020-04', totalWages: 43516.58 },
-            { start: '2020-10', totalWages: 44165.76 },
-            { start: '2021-02', totalWages: 44165.76 },
-            { start: '2021-10', totalWages: 46028.56 },
-            { start: '2022-04', totalWages: 45541.67 },
-            { start: '2022-10', totalWages: 48462.99 },
-            { start: '2023-04', totalWages: 49977.75 },
-            { start: '2023-10', totalWages: 50618.35 },
-            { start: '2024-04', totalWages: 52466.28 },
-            { start: '2024-10', totalWages: 52790.87 },
-            { start: '2025-04', totalWages: 52423.25 },
-            { start: '2025-10', totalWages: 54143.33 }
+            { month: 'Oct 2013', totalWages: 15661.71 },
+            { month: 'Apr 2014', totalWages: 16630.48 },
+            { month: 'Oct 2014', totalWages: 16791.94 },
+            { month: 'Apr 2015', totalWages: 17653.06 },
+            { month: 'Oct 2015', totalWages: 17892.22 },
+            { month: 'Apr 2016', totalWages: 18645.65 },
+            { month: 'Oct 2016', totalWages: 18998.57 },
+            { month: 'Apr 2017', totalWages: 31821.12 },
+            { month: 'Oct 2017', totalWages: 31915.45 },
+            { month: 'Apr 2018', totalWages: 32938.03 },
+            { month: 'Oct 2018', totalWages: 33622.50 },
+            { month: 'Apr 2019', totalWages: 34920.71 },
+            { month: 'Oct 2019', totalWages: 35477.10 },
+            { month: 'Apr 2020', totalWages: 36878.46 },
+            { month: 'Oct 2020', totalWages: 37428.61 },
+            { month: 'Feb 2021', totalWages: 37428.61 },
+            { month: 'Oct 2021', totalWages: 39007.25 },
+            { month: 'Apr 2022', totalWages: 38594.64 },
+            { month: 'Oct 2022', totalWages: 41070.33 },
+            { month: 'Apr 2023', totalWages: 42354.02 },
+            { month: 'Oct 2023', totalWages: 42896.90 },
+            { month: 'Apr 2024', totalWages: 44462.95 },
+            { month: 'Oct 2024', totalWages: 44738.03 },
+            { month: 'Apr 2025', totalWages: 44426.48 },
+            { month: 'Oct 2025', totalWages: 45884.18 }
         ];
 
         function getTotalWagesForMonth(yearMonth) {
-            const targetDate = new Date(`${yearMonth}-01`);
-            let applicable = wageData[0].totalWages;
-            for (let i = wageData.length - 1; i >= 0; i--) {
-                const startDate = new Date(`${wageData[i].start}-01`);
-                if (startDate <= targetDate) {
-                    applicable = wageData[i].totalWages;
-                    break;
-                }
-            }
-            return applicable;
+            const targetMonth = yearMonth.split('-');
+            const target = `${targetMonth[1].padStart(3, '0')} ${targetMonth[0]}`;
+            const applicable = wageData.find(w => w.month === target);
+            return applicable ? applicable.totalWages : 0;
         }
 
         function generateMonths() {
@@ -115,9 +109,12 @@
             tableBody.innerHTML = '';
             
             let current = new Date(joiningDate.getFullYear(), joiningDate.getMonth(), 1);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             
             while (current <= currentDate) {
-                const yearMonth = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+                const year = current.getFullYear();
+                const month = monthNames[current.getMonth()];
+                const yearMonth = `${year}-${month}`;
                 const requiredTotalWages = getTotalWagesForMonth(yearMonth);
                 
                 const row = document.createElement('tr');
@@ -163,6 +160,15 @@
             return total;
         }
 
+        function addWrappedText(doc, text, x, y, maxWidth, lineHeight) {
+            const lines = doc.splitTextToSize(text, maxWidth);
+            lines.forEach(line => {
+                doc.text(line, x, y);
+                y += lineHeight;
+            });
+            return y;
+        }
+
         function generatePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -181,53 +187,48 @@
 
             // Initial setup
             let y = 10;
+            const pageWidth = 210;
             const pageHeight = 297; // A4 height in mm
             const margin = 10;
             const lineHeight = 7;
             const maxY = pageHeight - margin;
+            const contentWidth = pageWidth - 2 * margin;
 
             // Header
             doc.setFontSize(16);
-            doc.text('Arrears Claim Letter', 105, y, { align: 'center' });
-            y += 10;
+            y = addWrappedText(doc, 'Arrears Claim Letter', margin, y, contentWidth, lineHeight + 3);
+            y += lineHeight;
 
             // Additional Personal Details
             doc.setFontSize(12);
-            doc.text(`Name: ${name}`, margin, y);
+            y = addWrappedText(doc, `Name: ${name}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Aadhaar Number: ${aadhaar}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Indian Bank Salary Account No.: ${bankAccount}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Date of Birth: ${dob}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Mobile Number: ${mobile}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Email Address: ${email}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `To:`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `The Director, NIT Patna`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `From: ${name}`, margin, y, contentWidth, lineHeight);
+            y = addWrappedText(doc, `Date of Joining: ${joiningDate}`, margin, y, contentWidth, lineHeight);
+            const subjectText = `Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`;
+            y = addWrappedText(doc, subjectText, margin, y, contentWidth, lineHeight);
             y += lineHeight;
-            doc.text(`Aadhaar Number: ${aadhaar}`, margin, y);
-            y += lineHeight;
-            doc.text(`Indian Bank Salary Account No.: ${bankAccount}`, margin, y);
-            y += lineHeight;
-            doc.text(`Date of Birth: ${dob}`, margin, y);
-            y += lineHeight;
-            doc.text(`Mobile Number: ${mobile}`, margin, y);
-            y += lineHeight;
-            doc.text(`Email Address: ${email}`, margin, y);
-            y += lineHeight;
-            doc.text(`To: The Director, NIT Patna`, margin, y);
-            y += lineHeight;
-            doc.text(`From: ${name}`, margin, y);
-            y += lineHeight;
-            doc.text(`Date of Joining: ${joiningDate}`, margin, y);
-            y += lineHeight;
-            doc.text(`Subject: Claim for Arrears Due to Violations of DGR Minimum Wages, Non-Provision of EPF, and Other Allowances`, margin, y);
-            y += 2 * lineHeight;
 
             // Body
-            doc.text(`Dear Sir/Madam,`, margin, y);
+            y = addWrappedText(doc, `Dear Sir/Madam,`, margin, y, contentWidth, lineHeight);
+            const bodyText1 = `I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`;
+            y = addWrappedText(doc, bodyText1, margin, y, contentWidth, lineHeight);
+            const bodyText2 = `I hereby claim the following arrears based on underpayments and violations:`;
+            y = addWrappedText(doc, bodyText2, margin, y, contentWidth, lineHeight);
             y += lineHeight;
-            doc.text(`I am an ex-serviceman security guard employed directly by NIT Patna through the Sainik Kalyan Board, AWPO Danapur.`, margin, y);
-            y += lineHeight;
-            doc.text(`I hereby claim the following arrears based on underpayments and violations:`, margin, y);
-            y += 2 * lineHeight;
 
             // Table Headers
             const headers = ['Month', 'Required Total Wages', 'Paid', 'Difference', 'Violation'];
             const startX = margin;
-            const colWidth = 35; // Adjusted for better spacing
+            const colWidth = [25, 40, 25, 30, 60]; // Custom widths to fit content, total ~180mm
             headers.forEach((header, index) => {
-                doc.text(header, startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
+                doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
             });
             y += lineHeight;
 
@@ -235,8 +236,12 @@
             const rows = document.querySelectorAll('#payTable tbody tr');
             rows.forEach(row => {
                 const cells = row.children;
+                const yearMonth = cells[0].textContent.split('-');
+                const month = yearMonth[1];
+                const year = yearMonth[0];
+                const formattedMonth = `${month} ${year}`;
                 const rowData = [
-                    cells[0].textContent,
+                    formattedMonth,
                     cells[1].textContent,
                     cells[2].querySelector('input').value || '0',
                     cells[3].textContent,
@@ -245,35 +250,14 @@
 
                 if (y + lineHeight > maxY) {
                     doc.addPage();
-                    y = margin + 10; // Reset y with margin
+                    y = margin;
                     headers.forEach((header, index) => {
-                        doc.text(header, startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
+                        doc.text(header, startX + colWidth.slice(0, index).reduce((a, b) => a + b, 0), y, { maxWidth: colWidth[index] - 2 });
                     });
                     y += lineHeight;
                 }
 
-                rowData.forEach((data, index) => {
-                    doc.text(data.toString(), startX + (index * colWidth), y, { maxWidth: colWidth - 2 });
-                });
-                y += lineHeight;
-            });
-
-            // Footer
-            if (y + (4 * lineHeight) > maxY) {
-                doc.addPage();
-                y = margin + 10;
-            }
-            y += lineHeight;
-            doc.text(`Total Arrears: ₹${totalArrears.toFixed(2)}`, margin, y);
-            y += lineHeight;
-            doc.text(`Please release the arrears at the earliest.`, margin, y);
-            y += lineHeight;
-            doc.text(`Yours sincerely,`, margin, y);
-            y += lineHeight;
-            doc.text(name, margin, y);
-
-            doc.save('arrears-claim.pdf');
-        }
-    </script>
-</body>
-</html>
+                let maxLines = 1;
+                const cellLines = rowData.map((data, index) => doc.splitTextToSize(data.toString(), colWidth[index] - 2));
+                cellLines.forEach(lines => {
+                    if (lines.length > maxLines
